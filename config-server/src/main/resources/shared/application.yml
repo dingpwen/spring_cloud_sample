@@ -1,0 +1,12 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8001/eureka/
+
+#you may use spring.sleuth.sampler.percentage in older version instead
+spring:
+  zipkin:
+    base-url: http://localhost:9000
+  sleuth:
+    sampler:
+      probability: 1.0

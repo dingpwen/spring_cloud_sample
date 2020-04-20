@@ -1,0 +1,80 @@
+version: '2.2'
+services:
+  mysql:
+   container_name: v-mysql
+   image: mysql/mysql-server:5.7
+   environment:
+    MYSQL_DATABASE: garbage
+    MYSQL_ROOT_PASSWORD: Wenpd1234
+    MYSQL_ROOT_HOST: '%'
+   ports:
+   - "3306:3306"
+   restart: always
+   logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  eureka-server:
+    restart: always
+    build: ./eureka-server
+    ports:
+      - 8001:8001
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+        
+  config-server:
+    restart: always
+    build: ./config-server
+    ports:
+      - 8008:8008
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  garbage:
+    restart: always
+    build: ./garbage
+    ports:
+      - 8089:8089
+    depends_on:
+      config-server:
+        condition: service_healthy
+      mysql:
+        condition: service_started
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  gateway:
+    restart: always
+    build: ./gateway
+    ports:
+      - 5000:5000
+    depends_on:
+      config-server:
+        condition: service_healthy
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  zipkin-server:
+    restart: always
+    build: ./zipkin-server
+    ports:
+      - 9000:9000
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
